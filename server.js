@@ -3,6 +3,7 @@ const http = require('http');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const app = express();
 const server = http.createServer(app);
@@ -12,9 +13,10 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, './public')));
 
 // Database
-const db = new sqlite3.Database('./database/apekeys.db');
-
-db.run('CREATE TABLE IF NOT EXISTS APEKEYS (apekey TEXT NOT NULL)');
+mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true });
+const db = mongoose.connection;
+db.on("error", (error) => console.error(error));
+db.once("open", () => console.log("Connected to Mongoose"));
 
 // Monkeytype API
 // const { MonkeytypeClient } = require('monkeytype-js');
@@ -28,30 +30,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/add', (req, res) => {
-	db.serialize(() => {
-		db.run(
-			'INSERT INTO APEKEYS (apekey) VALUES(?)',
-			[req.body.apekey],
-			function (err) {
-				if (err) {
-					return console.log(err.message);
-				}
-				res.send(
-					'New employee has been added into the database with ID = ' + req.body.apekey);
-			}
-		);
-	});
-});
-
-app.get('/close', function (req, res) {
-	db.close((err) => {
-		if (err) {
-			res.send('There is some error in closing the database');
-			return console.error(err.message);
-		}
-		console.log('Closing the database connection.');
-		res.send('Database connection successfully closed');
-	});
+    res.send(req.body.apekey);
 });
 
 app.get('/api', async (req, res) => {
