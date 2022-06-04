@@ -1,9 +1,14 @@
+if (process.env.NODE_ENV !== "production") {
+    require("dotenv").config();
+}
+
 const express = require('express');
 const http = require('http');
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const flash = require('express-flash');
+const apekeyModel = require('./models/apekeyModel');
 
 const app = express();
 const server = http.createServer(app);
@@ -30,7 +35,16 @@ app.get('/', (req, res) => {
 });
 
 app.post('/add', (req, res) => {
-    res.send(req.body.apekey);
+        var apekey = new apekeyModel({
+            apekey: req.body.apekey
+        });
+        apekey.save();
+        console.log('Success!');
+        res.redirect('/');
+});
+
+app.get('/view', async (req, res) => {
+    res.send(await apekeyModel.find({ apekey: req.body.id }).exec());
 });
 
 app.get('/api', async (req, res) => {
