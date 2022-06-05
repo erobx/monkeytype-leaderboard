@@ -1,7 +1,10 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const apekeySchema = new mongoose.Schema({
-    apekey: String
+	apekey: {
+		type: String,
+		required: true,
+	},
 });
 
-module.exports = mongoose.model("Apekeys", apekeySchema);
+module.exports = mongoose.model('Apekey', apekeySchema);

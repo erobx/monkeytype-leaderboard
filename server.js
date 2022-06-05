@@ -1,27 +1,33 @@
-if (process.env.NODE_ENV !== "production") {
-    require("dotenv").config();
+if (process.env.NODE_ENV !== 'production') {
+	require('dotenv').config();
 }
-
 const express = require('express');
 const http = require('http');
 const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const flash = require('express-flash');
 const apekeyModel = require('./models/apekeyModel');
 
 const app = express();
 const server = http.createServer(app);
 
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, './public')));
 
 // Database
-mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true });
-const db = mongoose.connection;
-db.on("error", (error) => console.error(error));
-db.once("open", () => console.log("Connected to Mongoose"));
+const connectDB = async () => {
+	try {
+		await mongoose.connect(process.env.DATABASE_URI, {
+			useUnifiedTopology: true,
+			useNewUrlParser: true,
+		});
+	} catch (err) {
+		console.log(err);
+	}
+};
+
+connectDB();
 
 // Monkeytype API
 // const { MonkeytypeClient } = require('monkeytype-js');
@@ -29,22 +35,26 @@ db.once("open", () => console.log("Connected to Mongoose"));
 // 	'NjI4YWM5NWZhZDc0MjJiNThmMDdhYTE4LkQ5TngtQ2wydk52b0laYnFmV3lSZml1MFRoR3UwV3pU'
 // );
 
-
 app.get('/', (req, res) => {
 	res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
-app.post('/add', (req, res) => {
-        var apekey = new apekeyModel({
-            apekey: req.body.apekey
+app.post('/add', async (req, res) => {
+    const ak = req.body.apekey;
+    const duplicate = await apekeyModel.findOne({ apekey: ak }).exec();
+    if(duplicate) return res.sendStatus(409);
+    try {
+        const newApekey = await apekeyModel.create({
+            "apekey": req.body.apekey
         });
-        apekey.save();
-        console.log('Success!');
-        res.redirect('/');
+    } catch (err) {
+        console.log(err);
+    }
+	res.redirect('/');
 });
 
 app.get('/view', async (req, res) => {
-    res.send(await apekeyModel.find({ apekey: req.body.id }).exec());
+	res.send(await apekeyModel.find().exec());
 });
 
 app.get('/api', async (req, res) => {
@@ -52,4 +62,7 @@ app.get('/api', async (req, res) => {
 	res.send(data);
 });
 
-server.listen(process.env.PORT || 3000);
+mongoose.connection.once('open', () => {
+	console.log('Connected to MongoDB');
+	server.listen(process.env.PORT || 3000);
+});
