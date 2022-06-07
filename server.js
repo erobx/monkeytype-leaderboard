@@ -26,14 +26,13 @@ const connectDB = async () => {
 		console.log(err);
 	}
 };
-
 connectDB();
 
 // Monkeytype API
-// const { MonkeytypeClient } = require('monkeytype-js');
-// const monkeytypeClient = new MonkeytypeClient(
-// 	'NjI4YWM5NWZhZDc0MjJiNThmMDdhYTE4LkQ5TngtQ2wydk52b0laYnFmV3lSZml1MFRoR3UwV3pU'
-// );
+const { MonkeytypeClient } = require('monkeytype-js');
+const monkeytypeClient = new MonkeytypeClient(
+	'NjI4YWM5NWZhZDc0MjJiNThmMDdhYTE4LkQ5TngtQ2wydk52b0laYnFmV3lSZml1MFRoR3UwV3pU'
+);
 
 app.get('/', (req, res) => {
 	res.sendFile(path.join(__dirname, './public/index.html'));
@@ -44,9 +43,7 @@ app.post('/add', async (req, res) => {
     const duplicate = await apekeyModel.findOne({ apekey: ak }).exec();
     if(duplicate) return res.sendStatus(409);
     try {
-        const newApekey = await apekeyModel.create({
-            "apekey": req.body.apekey
-        });
+        await apekeyModel.create({"apekey": req.body.apekey});
     } catch (err) {
         console.log(err);
     }
@@ -66,3 +63,4 @@ mongoose.connection.once('open', () => {
 	console.log('Connected to MongoDB');
 	server.listen(process.env.PORT || 3000);
 });
+
