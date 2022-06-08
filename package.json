@@ -4,10 +4,13 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "devStart": "nodemon server.js"
-  },
+    "dev": "react-scripts start",
+    "start": "serve -s build",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "heroku-postbuild": "npm run build"
+    },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/erobx/monkeytype-leaderboard.git"
@@ -28,6 +31,7 @@
     "helmet": "^5.1.0",
     "mongoose": "^6.3.5",
     "monkeytype-js": "^0.0.5",
-    "nodemon": "^2.0.16"
+    "nodemon": "^2.0.16",
+    "serve": "^13.0.2"
   }
 }
