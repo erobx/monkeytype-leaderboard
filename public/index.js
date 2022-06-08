@@ -7,5 +7,6 @@ function displayWPM() {
 }
 
 function main() {
-    
+ displayWPM();   
 }
+main();
