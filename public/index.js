@@ -7,6 +7,7 @@ function displayWPM() {
 }
 
 function main() {
- displayWPM();   
+ displayWPM();
+ console.log('did it work?');
 }
 main();
